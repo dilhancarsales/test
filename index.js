@@ -20,17 +20,14 @@ var pdf2pic = require('pdf2pic');
 
 const options = {
   density: 100,
-  saveFilename: "untitled",
+  saveFilename: "dilhan",
   savePath: "out",
   format: "png",
   width: 600,
   height: 600
 };
-const storeAsImage = pdf2pic.fromPath("files/dilhan.pdf", options);
-const pageToConvertAsImage = 1;
+const convert = pdf2pic.fromPath("files/dilhan.pdf", options);
 
-storeAsImage().then((resolve) => {
-  console.log("Page 1 is now converted as image");
+convert.bulk(-1);
 
-  return resolve;
-});
+

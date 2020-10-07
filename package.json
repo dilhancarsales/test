@@ -11,7 +11,8 @@
   "author": "Dilhan Jayathilake",
   "license": "MIT",
   "dependencies": {
-    "gm": "^1.23.1"
+    "gm": "^1.23.1",
+    "pdf2pic": "^2.1.2"
   },
   "devDependencies": {
     "lint-staged": "^10.1.3"

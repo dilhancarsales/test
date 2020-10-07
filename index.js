@@ -14,8 +14,8 @@ gm('files/test.jpg')
   console.log(err);
 });*/
 
-gm('files/sample_pdf.pdf')
-.adjoin()
-.write('out/sample_pdf-%0d.jpg', function(err){
+gm()
+.in(['convert','files/sample_pdf.pdf'])
+.write('out/x-%04d.jpg', function(err){
   console.log(err);
 });

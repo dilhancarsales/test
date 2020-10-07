@@ -1,3 +1,4 @@
+
 //var gm = require('gm');
 
 
@@ -13,20 +14,22 @@ gm('files/test.jpg')
   console.log(err);
 });*/
 
-import { fromPath } from "pdf2pic";
+
+var pdf2pic = require('pdf2pic');
+
 
 const options = {
   density: 100,
   saveFilename: "untitled",
-  savePath: "/images",
+  savePath: "out",
   format: "png",
   width: 600,
   height: 600
 };
-const storeAsImage = fromPath("/files/dilhan.pdf", options);
+const storeAsImage = pdf2pic.fromPath("files/dilhan.pdf", options);
 const pageToConvertAsImage = 1;
 
-storeAsImage(pageToConvertAsImage).then((resolve) => {
+storeAsImage().then((resolve) => {
   console.log("Page 1 is now converted as image");
 
   return resolve;

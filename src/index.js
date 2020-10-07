@@ -8,7 +8,10 @@ var saveFileName = "test-out.pdf";
 gm.subClass = gm.subClass({ imageMagick: false });
 
 gm(pdfPath)
-    .identify(pdfPath, "%p ", (err, data) => {
+    .identify("%p ", function (error, data) {
+        console.log(error);
+
+
     var pages = data
         .replace(/^[\w\W]*?1/, "1")
         .split(" ").map((pageNumber) => parseInt(pageNumber, 10));

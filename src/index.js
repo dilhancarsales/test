@@ -25,6 +25,7 @@ gm(pdfPath)
         // Create JPG from page 0 of the PDF
         gm(stream, `${pdfPath}[${pageNumber}]`) // The name of your pdf
             .setFormat("jpg")
+            .density(300, 300)
             //.resize(200) // Resize to fixed 200px width, maintaining aspect ratio
             .quality(80) // Quality from 0 to 100
             .write(outputFileName, function (error) {

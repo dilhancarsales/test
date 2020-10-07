@@ -19,12 +19,10 @@ var pdf2pic = require('pdf2pic');
 
 
 const options = {
-  density: 100,
+  density: 300,
   saveFilename: "dilhan",
   savePath: "out",
-  format: "png",
-  width: 600,
-  height: 600
+  format: "jpeg"
 };
 const convert = pdf2pic.fromPath("files/dilhan.pdf", options);
 

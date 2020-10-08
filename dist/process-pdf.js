@@ -32,7 +32,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 .map((pageNumber) => parseInt(pageNumber, 10));
             pages.map((pageNumber) => {
                 const outputFileName = `${savePath}/${fileName}.${pageNumber + 1}.jpg`;
-                console.log(`xyz.pdf[${pageNumber}]`);
+                console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
                 gm_1.default(s3Stream, `xyz.pdf[${pageNumber}]`) // The name of your pdf
                     .setFormat("jpg")

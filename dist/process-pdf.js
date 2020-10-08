@@ -25,14 +25,20 @@ const gmToBuffer = (data) => {
                 return reject(err);
             }
             const chunks = [];
-            stdout.on('data', (chunk) => { chunks.push(chunk); });
-            stdout.once('end', () => { resolve(Buffer.concat(chunks)); });
-            stderr.once('data', (data1) => { reject(String(data1)); });
+            stdout.on("data", (chunk) => {
+                chunks.push(chunk);
+            });
+            stdout.once("end", () => {
+                resolve(Buffer.concat(chunks));
+            });
+            stderr.once("data", (data1) => {
+                reject(String(data1));
+            });
         });
     });
 };
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fileName = req.query.fileName;
+    const fileName = req.query.fileName ? req.query.fileName.toString() : null;
     const tenantId = req.query.tenantId;
     if (!fileName || !tenantId) {
         res.status(400).send("fileName and tenantId is required");
@@ -41,7 +47,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const tenantBucketName = "pz." + (tenantId === null || tenantId === void 0 ? void 0 : tenantId.toString().replace(/_/g, "").replace(/-/g, ""));
     try {
         // Download
-        const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName === null || fileName === void 0 ? void 0 : fileName.toString());
+        const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName);
         const files = [];
         // Transform
         gm1(original.Body).identify("%p ", (error, data) => {
@@ -55,15 +61,16 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 // Create JPG from page 0 of the PDF
                 const outa = gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
                     .setFormat("jpeg")
-                    .density(280, 280)
+                    .density(200, 200)
                     .quality(80);
                 const stream = yield gmToBuffer(outa);
-                const s3FileName = `${fileName}.${pageNumber}.jpg`;
+                const s3FileName = `pdf-${pageNumber - 1}/${fileName}.jpg`;
                 files.push(s3FileName);
                 yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", stream);
                 console.log("Finished saving JPG");
             }));
         });
+        yield s3_helper_1.default.copyObject("proofjet.upload", tenantBucketName, fileName, `original/${fileName}`);
         res.send({ files });
     }
     catch (e) {

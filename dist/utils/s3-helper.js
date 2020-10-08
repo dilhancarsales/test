@@ -18,7 +18,7 @@ const s3Helper = {
                 .getObject(params, (err, data) => {
                 resolve({
                     Body: data.Body,
-                    ContentType: data.ContentType
+                    ContentType: data.ContentType,
                 });
             })
                 .on("error", (err) => {
@@ -28,13 +28,24 @@ const s3Helper = {
         });
     },
     putObject: (bucketName, fileName, contentType, buffer) => {
-        return space.putObject({
+        return space
+            .putObject({
             Bucket: bucketName,
             Key: fileName,
             Body: buffer,
-            ContentType: contentType
-        }).promise();
-    }
+            ContentType: contentType,
+        })
+            .promise();
+    },
+    copyObject: (sourceBucketName, targetBucketName, sourceFileName, targetFileName) => {
+        return space
+            .copyObject({
+            Bucket: targetBucketName,
+            Key: targetFileName,
+            CopySource: `${sourceBucketName}/${sourceFileName}`,
+        })
+            .promise();
+    },
 };
 exports.default = s3Helper;
 //# sourceMappingURL=s3-helper.js.map

@@ -18,6 +18,19 @@ const gm_1 = __importDefault(require("gm"));
 const router = express_1.default.Router();
 const savePath = "/root/proof-cloud/test/temp-files";
 const gm1 = gm_1.default.subClass({ imageMagick: false });
+const gmToBuffer = (data) => {
+    return new Promise((resolve, reject) => {
+        data.stream((err, stdout, stderr) => {
+            if (err) {
+                return reject(err);
+            }
+            const chunks = [];
+            stdout.on('data', (chunk) => { chunks.push(chunk); });
+            stdout.once('end', () => { resolve(Buffer.concat(chunks)); });
+            stderr.once('data', (data1) => { reject(String(data1)); });
+        });
+    });
+};
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fileName = req.query.fileName;
     const tenantId = req.query.tenantId;
@@ -36,39 +49,20 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 .replace(/^[\w\W]*?1/, "1")
                 .split(" ")
                 .map((pageNumber) => parseInt(pageNumber, 10));
-            pages.map((pageNumber) => {
+            pages.map((pageNumber) => __awaiter(void 0, void 0, void 0, function* () {
                 const outputFileName = `${savePath}/${fileName}.${pageNumber}.jpg`;
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
                 const outa = gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
                     .setFormat("jpg")
                     .density(280, 280)
-                    .quality(80) // Quality from 0 to 100
-                    .stream("jpg", (err, stdout, stderr) => {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    const chunks = [];
-                    stdout.on("data", (chunk) => {
-                        console.log("chunk:" + chunk.length);
-                        chunks.push(chunk);
-                    });
-                    // these are 'once' because they can and do fire multiple times for multiple errors,
-                    // but this is a promise so you'll have to deal with them one at a time
-                    stdout.once("end", () => __awaiter(void 0, void 0, void 0, function* () {
-                        const buffer = Buffer.concat(chunks);
-                        console.log(buffer.length);
-                        const s3FileName = `${fileName}.${pageNumber}.jpg`;
-                        files.push(s3FileName);
-                        yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", buffer);
-                        console.log("Finished saving JPG");
-                    }));
-                    stderr.once("data", (err1) => {
-                        console.log(err1);
-                    });
-                });
-            });
+                    .quality(80);
+                const stream = yield gmToBuffer(outa);
+                const s3FileName = `${fileName}.${pageNumber}.jpg`;
+                files.push(s3FileName);
+                yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", stream);
+                console.log("Finished saving JPG");
+            }));
         });
         res.send({ files });
     }

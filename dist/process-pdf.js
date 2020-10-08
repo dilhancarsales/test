@@ -45,7 +45,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                         files.push(outputFileName);
                     }
                     else {
-                        console.log("There was an error!", err);
+                        console.log("There was an error! " + outputFileName, err);
                     }
                 });
             });

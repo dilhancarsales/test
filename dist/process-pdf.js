@@ -19,9 +19,12 @@ const router = express_1.default.Router();
 const savePath = "/root/proof-cloud/test/temp-files";
 const gm1 = gm_1.default.subClass({ imageMagick: false });
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const fileName = req.body.fileName;
-    const tenantId = req.body.tenantId;
-    const tenantBucketName = "pz." + tenantId.replace(/_/g, "").replace(/-/g, "");
+    const fileName = req.query.fileName;
+    const tenantId = req.query.tenantId;
+    if (!fileName || !tenantId) {
+        res.status(400).send("fileName and tenantId is required");
+    }
+    const tenantBucketName = "pz." + (tenantId === null || tenantId === void 0 ? void 0 : tenantId.toString().replace(/_/g, "").replace(/-/g, ""));
     try {
         // Download
         const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName);

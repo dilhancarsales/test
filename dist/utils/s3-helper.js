@@ -8,15 +8,18 @@ const space = new aws_sdk_1.S3({
     credentials: new aws_sdk_1.Credentials("AYQGFI7H7ZPARGTTQK4R", "OCclnO+CPFfp4m7W6VGJfIcRrcMWlZHm+0ZG+t0EAo0"),
 });
 const s3Helper = {
-    getStream: (bucketName, fileName) => {
+    getBuffer: (bucketName, fileName) => {
         return new Promise((resolve, reject) => {
             const params = {
                 Bucket: bucketName,
                 Key: fileName,
             };
-            const stream = space
+            space
                 .getObject(params, (err, data) => {
-                resolve(data.Body);
+                resolve({
+                    Body: data.Body,
+                    ContentType: data.ContentType
+                });
             })
                 .on("error", (err) => {
                 console.log(err);
@@ -24,6 +27,14 @@ const s3Helper = {
             });
         });
     },
+    putObject: (bucketName, fileName, contentType, buffer) => {
+        return space.putObject({
+            Bucket: bucketName,
+            Key: fileName,
+            Body: buffer,
+            ContentType: contentType
+        }).promise();
+    }
 };
 exports.default = s3Helper;
 //# sourceMappingURL=s3-helper.js.map

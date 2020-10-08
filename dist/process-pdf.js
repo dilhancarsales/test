@@ -20,37 +20,41 @@ const savePath = "/root/proof-cloud/test/temp-files";
 const gm1 = gm_1.default.subClass({ imageMagick: false });
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fileName = req.body.fileName;
+    const tenantId = req.body.tenantId;
+    const tenantBucketName = "pz." + tenantId.replace(/_/g, "").replace(/-/g, "");
     try {
-        const s3Stream = yield s3_helper_1.default.getStream("proofjet.upload", "xyz.pdf");
+        // Download
+        const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName);
         const files = [];
-        console.log(s3Stream.length);
-        gm1(s3Stream).identify("%p ", (error, data) => {
-            console.log(data);
+        // Transform
+        gm1(original.Body).identify("%p ", (error, data) => {
             const pages = data
                 .replace(/^[\w\W]*?1/, "1")
                 .split(" ")
                 .map((pageNumber) => parseInt(pageNumber, 10));
             pages.map((pageNumber) => {
-                const outputFileName = `${savePath}/xyz.pdf.${pageNumber + 1}.jpg`;
+                const outputFileName = `${savePath}/${fileName}.${pageNumber}.jpg`;
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
-                gm1(s3Stream, `xyz.pdf[${pageNumber - 1}]`) // The name of your pdf
+                gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
                     .setFormat("jpg")
                     .density(280, 280)
                     .quality(80) // Quality from 0 to 100
-                    .write(outputFileName, (err) => {
+                    .toBuffer("jpg", (err, buffer) => __awaiter(void 0, void 0, void 0, function* () {
                     // Callback function executed when finished
                     if (!err) {
+                        const s3FileName = `${fileName}.${pageNumber}.jpg`;
+                        files.push(s3FileName);
+                        yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", buffer);
                         console.log("Finished saving JPG");
-                        files.push(outputFileName);
                     }
                     else {
                         console.log("There was an error! " + outputFileName, err);
                     }
-                });
+                }));
             });
         });
-        res.send(files.join(","));
+        res.send({ files });
     }
     catch (e) {
         res.status(500).send(e.toString());

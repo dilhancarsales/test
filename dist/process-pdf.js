@@ -23,7 +23,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const s3Stream = yield s3_helper_1.default.getStream("proofjet.upload", "xyz.pdf");
         const files = [];
-        gm_1.default(s3Stream).identify("%p ", (error, data) => {
+        gm_1.default(s3Stream, "xyz.pdf").identify("%p ", (error, data) => {
             console.log(error);
             const pages = data
                 .replace(/^[\w\W]*?1/, "1")

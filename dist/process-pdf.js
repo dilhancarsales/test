@@ -51,6 +51,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     }
                     const chunks = [];
                     stdout.on("data", (chunk) => {
+                        console.log("chunk:" + chunk.length);
                         chunks.push(chunk);
                     });
                     // these are 'once' because they can and do fire multiple times for multiple errors,
@@ -63,8 +64,8 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                         yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", buffer);
                         console.log("Finished saving JPG");
                     }));
-                    stderr.once("data", (err) => {
-                        console.log(err);
+                    stderr.once("data", (err1) => {
+                        console.log(err1);
                     });
                 }));
             });

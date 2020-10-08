@@ -44,7 +44,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     .setFormat("jpg")
                     .density(280, 280)
                     .quality(80) // Quality from 0 to 100
-                    .stream("jpg", (err, stdout, stderr) => __awaiter(void 0, void 0, void 0, function* () {
+                    .stream("jpg", (err, stdout, stderr) => {
                     if (err) {
                         console.log(err);
                         return;
@@ -67,7 +67,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     stderr.once("data", (err1) => {
                         console.log(err1);
                     });
-                }));
+                });
             });
         });
         res.send({ files });

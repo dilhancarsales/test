@@ -25,7 +25,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const files = [];
         console.log(s3Stream.length);
         gm_1.default(s3Stream, "xyz.pdf").identify("%p ", (error, data) => {
-            console.log(error);
+            console.log(data);
             const pages = data
                 .replace(/^[\w\W]*?1/, "1")
                 .split(" ")

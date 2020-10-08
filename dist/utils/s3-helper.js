@@ -15,13 +15,13 @@ const s3Helper = {
                 Key: fileName,
             };
             const stream = space
-                .getObject(params)
-                .createReadStream()
+                .getObject(params, (err, data) => {
+                resolve(data.Body);
+            })
                 .on("error", (err) => {
                 console.log(err);
                 reject();
             });
-            resolve(stream);
         });
     },
 };

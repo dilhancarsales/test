@@ -54,7 +54,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
                 const outa = gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
-                    .setFormat("jpg")
+                    .setFormat("jpeg")
                     .density(280, 280)
                     .quality(80);
                 const stream = yield gmToBuffer(outa);

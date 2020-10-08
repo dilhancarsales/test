@@ -17,14 +17,14 @@ const s3_helper_1 = __importDefault(require("./utils/s3-helper"));
 const gm_1 = __importDefault(require("gm"));
 const router = express_1.default.Router();
 const savePath = "/root/proof-cloud/test/temp-files";
-gm_1.default.subClass({ imageMagick: false });
+const gm1 = gm_1.default.subClass({ imageMagick: false });
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fileName = req.body.fileName;
     try {
         const s3Stream = yield s3_helper_1.default.getStream("proofjet.upload", "xyz.pdf");
         const files = [];
         console.log(s3Stream.length);
-        gm_1.default(s3Stream, "xyz.pdf").identify("%p ", (error, data) => {
+        gm1(s3Stream, "xyz.pdf").identify("%p ", (error, data) => {
             console.log(data);
             const pages = data
                 .replace(/^[\w\W]*?1/, "1")
@@ -34,7 +34,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 const outputFileName = `${savePath}/xyz.pdf.${pageNumber + 1}.jpg`;
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
-                gm_1.default(s3Stream, `xyz.pdf[${pageNumber}]`) // The name of your pdf
+                gm1(s3Stream, `xyz.pdf[${pageNumber}]`) // The name of your pdf
                     .setFormat("jpg")
                     .density(280, 280)
                     .quality(80) // Quality from 0 to 100

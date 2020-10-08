@@ -57,6 +57,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     // but this is a promise so you'll have to deal with them one at a time
                     stdout.once("end", () => __awaiter(void 0, void 0, void 0, function* () {
                         const buffer = Buffer.concat(chunks);
+                        console.log(buffer.length);
                         const s3FileName = `${fileName}.${pageNumber}.jpg`;
                         files.push(s3FileName);
                         yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", buffer);

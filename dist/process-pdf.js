@@ -16,7 +16,7 @@ const express_1 = __importDefault(require("express"));
 const s3_helper_1 = __importDefault(require("./utils/s3-helper"));
 const gm_1 = __importDefault(require("gm"));
 const router = express_1.default.Router();
-const savePath = "temp-files";
+const savePath = "/root/proof-cloud/test/temp-files";
 gm_1.default.subClass({ imageMagick: false });
 router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fileName = req.body.fileName;
@@ -31,7 +31,7 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 .split(" ")
                 .map((pageNumber) => parseInt(pageNumber, 10));
             pages.map((pageNumber) => {
-                const outputFileName = `${savePath}/${fileName}.${pageNumber + 1}.jpg`;
+                const outputFileName = `${savePath}/xyz.pdf.${pageNumber + 1}.jpg`;
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
                 gm_1.default(s3Stream, `xyz.pdf[${pageNumber}]`) // The name of your pdf

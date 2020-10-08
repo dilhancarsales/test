@@ -23,11 +23,12 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const tenantId = req.query.tenantId;
     if (!fileName || !tenantId) {
         res.status(400).send("fileName and tenantId is required");
+        return;
     }
     const tenantBucketName = "pz." + (tenantId === null || tenantId === void 0 ? void 0 : tenantId.toString().replace(/_/g, "").replace(/-/g, ""));
     try {
         // Download
-        const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName);
+        const original = yield s3_helper_1.default.getBuffer("proofjet.upload", fileName === null || fileName === void 0 ? void 0 : fileName.toString());
         const files = [];
         // Transform
         gm1(original.Body).identify("%p ", (error, data) => {
@@ -39,21 +40,31 @@ router.get("/pdf", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 const outputFileName = `${savePath}/${fileName}.${pageNumber}.jpg`;
                 console.log(outputFileName);
                 // Create JPG from page 0 of the PDF
-                gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
+                const outa = gm1(original.Body, `${fileName}[${pageNumber - 1}]`) // The name of your pdf
                     .setFormat("jpg")
                     .density(280, 280)
                     .quality(80) // Quality from 0 to 100
-                    .toBuffer("jpg", (err, buffer) => __awaiter(void 0, void 0, void 0, function* () {
-                    // Callback function executed when finished
-                    if (!err) {
+                    .stream((err, stdout, stderr) => __awaiter(void 0, void 0, void 0, function* () {
+                    if (err) {
+                        console.log(err);
+                        return;
+                    }
+                    const chunks = [];
+                    stdout.on("data", (chunk) => {
+                        chunks.push(chunk);
+                    });
+                    // these are 'once' because they can and do fire multiple times for multiple errors,
+                    // but this is a promise so you'll have to deal with them one at a time
+                    stdout.once("end", () => __awaiter(void 0, void 0, void 0, function* () {
+                        const buffer = Buffer.concat(chunks);
                         const s3FileName = `${fileName}.${pageNumber}.jpg`;
                         files.push(s3FileName);
                         yield s3_helper_1.default.putObject(tenantBucketName, s3FileName, "image/jpg", buffer);
                         console.log("Finished saving JPG");
-                    }
-                    else {
-                        console.log("There was an error! " + outputFileName, err);
-                    }
+                    }));
+                    stderr.once("data", (err) => {
+                        console.log(err);
+                    });
                 }));
             });
         });
